@@ -2,11 +2,11 @@
 
 LLMの推論基盤からRAG・AIエージェントまで、LLMシステムの構築と選定に取り組んでいます。
 
-技術選定は感想ではなく、実測と統計的な検定で決めるようにしています。判定の規則を結果の前後どちらで決めたかも、各リポジトリに記録しています。
+技術選定は感想ではなく、実測と統計的な検定で決めるようにしています。
 
 ## 検証に基づいて選ぶ
 
-- **[toolcall-serving-bench](https://github.com/yuya0408/toolcall-serving-bench)** — 同じ8Bモデル(Qwen3-8B)をNVIDIA L4 1台で、推論エンジン3つ×量子化3つの9構成に載せ、ツール呼び出しの精度とレイテンシを測った。精度の足切りを通った4構成から、会話用の基準を満たす並行数で必要なGPUの台数を出し、目標の並行数が4以上ならTensorRT-LLM FP8が最少(並行数16で4台、vLLMは8台)。判定の規則は結果より先にADRに記録した。
+- **[toolcall-serving-bench](https://github.com/yuya0408/toolcall-serving-bench)** — 同じ8Bモデル(Qwen3-8B)をNVIDIA L4 1台で、推論エンジン3つ×量子化3つの9構成に載せ、ツール呼び出しの精度とレイテンシを測った。精度で足切りし、会話用の基準を満たす並行数から必要なGPUの台数を出して構成を選び(目標の並行数が4以上ならTensorRT-LLM FP8が最少、並行数16で4台。FP8の形式の差を含む)、その結果を左右した要因(律速・量子化の計算の形・エンジンの既定値)を記録から特定した。
 - **[vlm-vs-yolo](https://github.com/yuya0408/vlm-vs-yolo)** — 汎用VLMと専用検出器(YOLO)のどちらを採るかを、COCO 300枚で検証。YOLOが既定の閾値のままだとVLMが有意に上だが(McNemar `p=0.004`)、VLMのスコアを使わずに閾値を選び直すと差を検出できなくなる(`p=0.71`)。精度で決められないときに、コスト・処理量・語彙で選ぶ基準までまとめた。<br>
   記事: [前編](https://zenn.dev/yuya0408/articles/yolo-vs-vlm-background) / [後編](https://zenn.dev/yuya0408/articles/yolo-vs-vlm-evaluation-pitfall)
 - **[gbrain-embedding-eval](https://github.com/yuya0408/gbrain-embedding-eval)** — 個人用RAGの埋め込みモデル6候補を「足切り → Cochran's Q検定 → スループット実測」で選び直した。上位4モデルの品質差は検出できず(`p=0.449`)、スループットで決めた。既定のモデルからの移行で、gbrain本体の検索MRRは`0.336 → 0.676`。<br>
